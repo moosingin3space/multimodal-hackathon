@@ -29,7 +29,10 @@ function CompetitorDeepDive() {
       getCompetitorReport(name),
     ])
       .then(([sigRes, rep]) => {
-        setSignals(sigRes.signals);
+        const sorted = [...sigRes.signals]
+          .sort((a, b) => new Date(b.detected_at).getTime() - new Date(a.detected_at).getTime())
+          .slice(0, 25);
+        setSignals(sorted);
         setReport(rep);
       })
       .catch(console.error)

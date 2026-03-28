@@ -29,10 +29,23 @@ function Dashboard() {
   const [panelTab, setPanelTab] = useState<PanelTab>("report");
   const [refreshing, setRefreshing] = useState(false);
 
+  // Clear accumulated signals whenever the company or mode changes so we don't
+  // mix signals from different contexts.
+  useEffect(() => {
+    setSignals([]);
+  }, [company, mode]);
+
   const fetchSignals = useCallback(async () => {
     try {
       const res = await getSignals(company, { mode, limit: 100, competitors: discoveredCompetitors });
-      setSignals(res.signals);
+      setSignals(prev => {
+        // Merge: existing signals win on conflict so already-visible signals don't flicker.
+        const merged = new Map(res.signals.map(s => [s.id, s]));
+        for (const s of prev) merged.set(s.id, s);
+        return [...merged.values()]
+          .sort((a, b) => new Date(b.detected_at).getTime() - new Date(a.detected_at).getTime())
+          .slice(0, 25);
+      });
     } catch (e) {
       console.error("fetchSignals:", e);
     }
@@ -49,8 +62,12 @@ function Dashboard() {
 
   useEffect(() => {
     setLoading(true);
+    setRefreshing(true);
+    // Kick off a fresh sweep immediately on load so the user never has to
+    // manually trigger the first scan.
+    triggerAgentRun(company).catch(console.error).finally(() => setRefreshing(false));
     Promise.all([fetchSignals(), fetchReport()]).finally(() => setLoading(false));
-  }, [fetchSignals, fetchReport]);
+  }, [fetchSignals, fetchReport, company]);
 
   // Poll for new signals every 30s
   useEffect(() => {
@@ -157,7 +174,7 @@ function Dashboard() {
             <span className="feed-title">
               {activeCompetitor ?? "All signals"}
             </span>
-            <span className="feed-count">{visibleSignals.length} signals</span>
+            <span className="feed-count">{visibleSignals.length} of 25 signals</span>
             {activeCompetitor && (
               <Link
                 to="/competitor/$name"
@@ -169,15 +186,15 @@ function Dashboard() {
             )}
           </div>
 
-          {loading && (
+          {(loading || refreshing) && visibleSignals.length === 0 && (
             <div style={{ display: "flex", alignItems: "center", gap: 10, color: "var(--text-muted)" }}>
-              <span className="spinner" /> Loading signals…
+              <span className="spinner" /> Sweeping for signals…
             </div>
           )}
 
-          {!loading && visibleSignals.length === 0 && (
+          {!loading && !refreshing && visibleSignals.length === 0 && (
             <div style={{ color: "var(--text-muted)", fontSize: 13 }}>
-              No signals yet. Click "Sweep now" to run a fresh scan.
+              No signals found. Try another sweep.
             </div>
           )}
 
