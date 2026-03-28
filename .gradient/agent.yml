@@ -1,3 +1,3 @@
-# This file is managed by the Gradient CLI.
-# Run `gradient agent init` or `gradient agent configure` to regenerate it.
-# Do not edit manually.
+agent_environment: main
+agent_name: multimodal-hackathon
+entrypoint_file: main.py

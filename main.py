@@ -1,7 +1,10 @@
 import os
 from typing import TypedDict
 
+from dotenv import load_dotenv
 from gradient_adk import entrypoint
+
+load_dotenv()
 from langchain_core.messages import AIMessage, HumanMessage
 from langchain_openai import ChatOpenAI
 from langgraph.graph import END, StateGraph
