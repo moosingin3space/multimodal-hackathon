@@ -3,3 +3,9 @@ langchain-openai
 langgraph
 fastapi[standard]
 uvicorn[standard]
+httpx
+feedparser
+beautifulsoup4
+lxml
+google-generativeai
+python-dateutil

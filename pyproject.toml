@@ -1,14 +1,19 @@
 [project]
 name = "multimodal-hackathon"
 version = "0.1.0"
-description = "Add your description here"
+description = "ScoutAgent — autonomous competitive intelligence"
 readme = "README.md"
-requires-python = ">=3.10,<3.14"
+requires-python = ">=3.10"
 dependencies = [
     "gradient-adk",
     "langchain-openai",
     "langgraph",
     "fastapi[standard]",
     "uvicorn[standard]",
-    "dotenv>=0.9.9",
+    "httpx",
+    "feedparser",
+    "beautifulsoup4",
+    "lxml",
+    "google-generativeai",
+    "python-dateutil",
 ]
