@@ -223,7 +223,7 @@ function Dashboard() {
           {panelTab === "report" ? (
             <ReportPanel report={report} loading={loading} />
           ) : (
-            <ChatPanel company={company} />
+            <ChatPanel key={company} company={company} />
           )}
         </aside>
       </div>
@@ -379,12 +379,14 @@ interface ChatMessage {
   content: string;
 }
 
-const SUGGESTED = [
-  "Should I be worried about Palo Alto?",
-  "Which competitor is moving fastest?",
-  "What's Juniper's trajectory?",
-  "Any pricing threats this week?",
-];
+function getSuggested(company: string) {
+  return [
+    `Who is ${company}'s biggest competitive threat right now?`,
+    "Which competitor is moving fastest?",
+    "Any pricing threats this week?",
+    "What recent product launches should I know about?",
+  ];
+}
 
 function ChatPanel({ company }: { company: string }) {
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -454,19 +456,21 @@ function ChatPanel({ company }: { company: string }) {
       </div>
 
       {messages.length === 1 && (
-        <div style={{ padding: "0 16px 8px", display: "flex", flexWrap: "wrap", gap: 6 }}>
-          {SUGGESTED.map((s) => (
+        <div style={{ padding: "0 16px 8px", display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "flex-start" }}>
+          {getSuggested(company).map((s) => (
             <button
               key={s}
               onClick={() => send(s)}
               style={{
                 background: "var(--bg-hover)",
                 border: "1px solid var(--border)",
-                borderRadius: 20,
+                borderRadius: 6,
                 color: "var(--text-dim)",
                 padding: "4px 12px",
                 fontSize: 12,
                 cursor: "pointer",
+                textAlign: "left",
+                width: "fit-content",
               }}
             >
               {s}
