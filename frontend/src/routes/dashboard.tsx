@@ -28,7 +28,7 @@ function Dashboard() {
   const [report, setReport] = useState<DailyReport | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeCompetitor, setActiveCompetitor] = useState<string | null>(null);
-  const [panelTab, setPanelTab] = useState<PanelTab>("report");
+  const [panelTab, setPanelTab] = useState<PanelTab>("chat");
   const [refreshing, setRefreshing] = useState(false);
 
   // Clear accumulated signals whenever the company or mode changes so we don't
@@ -68,8 +68,8 @@ function Dashboard() {
     // Kick off a fresh sweep immediately on load so the user never has to
     // manually trigger the first scan.
     triggerAgentRun(company).catch(console.error).finally(() => setRefreshing(false));
-    Promise.all([fetchSignals(), fetchReport()]).finally(() => setLoading(false));
-  }, [fetchSignals, fetchReport, company]);
+    fetchSignals().finally(() => setLoading(false));
+  }, [fetchSignals, company]);
 
   // Poll for new signals every 30s
   useEffect(() => {
@@ -81,7 +81,7 @@ function Dashboard() {
     setRefreshing(true);
     try {
       await triggerAgentRun(company);
-      await Promise.all([fetchSignals(), fetchReport()]);
+      await fetchSignals();
     } finally {
       setRefreshing(false);
     }
@@ -209,16 +209,16 @@ function Dashboard() {
         <aside className="right-panel">
           <div className="panel-tabs">
             <button
-              className={`panel-tab${panelTab === "report" ? " active" : ""}`}
-              onClick={() => setPanelTab("report")}
-            >
-              Daily Report
-            </button>
-            <button
               className={`panel-tab${panelTab === "chat" ? " active" : ""}`}
               onClick={() => setPanelTab("chat")}
             >
               Ask Agent
+            </button>
+            <button
+              className={`panel-tab${panelTab === "report" ? " active" : ""}`}
+              onClick={() => setPanelTab("report")}
+            >
+              Daily Report
             </button>
           </div>
 
