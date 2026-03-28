@@ -79,6 +79,9 @@ function Onboarding() {
       <p style={{ marginTop: 48, fontSize: 12, color: "var(--text-muted)", textAlign: "center" }}>
         Powered by DigitalOcean Gradient · Gemini 2.0 Flash · Railtracks
       </p>
+      <p style={{ marginTop: 12, fontSize: 11, color: "var(--text-muted)", textAlign: "center", maxWidth: 480, opacity: 0.7 }}>
+        For informational purposes only. Not investment, financial, or career advice.
+      </p>
     </div>
   );
 }
