@@ -84,7 +84,9 @@ function Dashboard() {
     <div className="app-shell">
       {/* Top bar */}
       <header className="topbar">
-        <span className="topbar-brand">ScoutAgent</span>
+        <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>
+          <span className="topbar-brand">ScoutAgent</span>
+        </Link>
         <span className="topbar-company">watching {company}</span>
         {urgentCount > 0 && (
           <span className="now-badge">{urgentCount} urgent</span>

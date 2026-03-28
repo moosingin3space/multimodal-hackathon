@@ -65,7 +65,8 @@ async def synthesize(competitor: str, signals: list[dict]) -> dict:
     content = f"Competitor: {competitor}\nSignals from last 30 days:\n" + "\n".join(lines)
 
     try:
-        import json, re
+        import json
+        import re
         llm = _make_llm()
         response = await llm.ainvoke(
             [SystemMessage(content=_TRAJECTORY_SYSTEM), HumanMessage(content=content)]

@@ -9,3 +9,5 @@ beautifulsoup4
 lxml
 google-generativeai
 python-dateutil
+exa-py
+yt-dlp

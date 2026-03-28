@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 from datetime import datetime, timedelta, timezone
 
-from backend.memory import load_all_signals, load_competitors, load_signals
+from backend.memory import load_competitors, load_signals
 from backend.synthesizer import synthesize
 
 logger = logging.getLogger(__name__)

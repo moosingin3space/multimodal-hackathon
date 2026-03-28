@@ -84,7 +84,8 @@ async def _analyze_one(image_url: str, competitor: str, api_key: str) -> dict:
     text = data["candidates"][0]["content"]["parts"][0]["text"]
 
     # Try to parse JSON from Gemini response
-    import json, re
+    import json
+    import re
     match = re.search(r"\{.*\}", text, re.DOTALL)
     parsed: dict = {}
     if match:

@@ -1,7 +1,7 @@
 """Streaming chat endpoint — grounded in current competitive signals."""
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 

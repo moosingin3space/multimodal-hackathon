@@ -1,4 +1,3 @@
-import os
 from typing import TypedDict
 
 from dotenv import load_dotenv
@@ -7,22 +6,16 @@ from gradient_adk import entrypoint
 
 load_dotenv()
 from langchain_core.messages import AIMessage, HumanMessage
-from langchain_openai import ChatOpenAI
 from langgraph.graph import END, StateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
 
+from backend.llm import make_llm
 from tools.example_tool import get_current_time
 
 # ---------------------------------------------------------------------------
 # Model setup
 # ---------------------------------------------------------------------------
-# Uses DigitalOcean Serverless Inference via an OpenAI-compatible endpoint.
-# Swap the model name for any model available on Gradient.
-llm = ChatOpenAI(
-    model="openai-gpt-oss-120b",
-    openai_api_base="https://inference.do-ai.run/v1",
-    openai_api_key=os.environ["GRADIENT_MODEL_ACCESS_KEY"],
-)
+llm = make_llm()
 
 tools = [get_current_time]
 llm_with_tools = llm.bind_tools(tools)

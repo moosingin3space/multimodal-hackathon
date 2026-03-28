@@ -9,7 +9,6 @@ from backend.memory import load_competitors, save_competitors, save_signals
 from backend.signals.employee_signals import extract_employee_signals
 from backend.signals.investor_signals import extract_investor_signals
 from backend.signals.urgency_scorer import score_urgency
-from backend.synthesizer import synthesize
 from backend.workers.github_watcher import watch_github
 from backend.workers.image_analyzer import analyze_images
 from backend.workers.jobs_watcher import watch_jobs

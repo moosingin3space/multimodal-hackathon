@@ -16,4 +16,7 @@ dependencies = [
     "lxml",
     "google-generativeai",
     "python-dateutil",
+    "dotenv>=0.9.9",
+    "exa-py",
+    "yt-dlp",
 ]

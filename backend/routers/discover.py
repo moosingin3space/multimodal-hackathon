@@ -12,8 +12,8 @@ router = APIRouter(dependencies=[Depends(require_api_key)])
 
 @router.post("/discover")
 async def discover(
+    background_tasks: BackgroundTasks,
     company_name: str = Query(...),
-    background_tasks: BackgroundTasks = BackgroundTasks(),
 ) -> dict:
     """Discover competitors for *company_name* and save to memory.
 
