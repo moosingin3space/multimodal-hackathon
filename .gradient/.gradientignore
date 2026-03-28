@@ -1,0 +1,18 @@
+# Files and directories excluded from `gradient agent deploy`
+.env
+.env.*
+!.env.example
+.git/
+.jj/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+frontend/

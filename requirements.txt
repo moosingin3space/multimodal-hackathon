@@ -1,0 +1,5 @@
+gradient-adk
+langchain-openai
+langgraph
+fastapi[standard]
+uvicorn[standard]
