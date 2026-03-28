@@ -343,19 +343,19 @@ a:hover { color: var(--accent-2); }
 
 .signal-card.urgency-critical {
   border-left-color: var(--critical);
-  background: linear-gradient(to right, var(--critical-bg), var(--card-bg) 90px);
+  background: var(--card-bg);
 }
 .signal-card.urgency-high {
   border-left-color: var(--high);
-  background: linear-gradient(to right, var(--high-bg), var(--card-bg) 90px);
+  background: var(--card-bg);
 }
 .signal-card.urgency-medium {
   border-left-color: var(--medium);
-  background: linear-gradient(to right, var(--medium-bg), var(--card-bg) 90px);
+  background: var(--card-bg);
 }
 .signal-card.urgency-low {
   border-left-color: var(--low);
-  background: linear-gradient(to right, var(--low-bg), var(--card-bg) 90px);
+  background: var(--card-bg);
 }
 .signal-card.surface-now { border-left-color: var(--critical); }
 
