@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { z } from "zod";
 import {
   getDailyReport,
@@ -447,7 +449,13 @@ function ChatPanel({ company }: { company: string }) {
       <div className="chat-messages">
         {messages.map((msg, i) => (
           <div key={i} className={`chat-bubble ${msg.role}`}>
-            {msg.content || (msg.role === "assistant" && streaming ? (
+            {msg.content ? (
+              msg.role === "assistant" ? (
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+              ) : (
+                msg.content
+              )
+            ) : (msg.role === "assistant" && streaming ? (
               <span className="spinner" style={{ width: 14, height: 14 }} />
             ) : null)}
           </div>

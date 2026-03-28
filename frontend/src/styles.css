@@ -525,6 +525,17 @@ a:hover { color: var(--accent-2); }
   border-radius: 2px 12px 12px 12px;
 }
 
+.chat-bubble.assistant p { margin: 0 0 0.5em; }
+.chat-bubble.assistant p:last-child { margin-bottom: 0; }
+.chat-bubble.assistant ul, .chat-bubble.assistant ol { margin: 0.25em 0 0.5em 1.25em; padding: 0; }
+.chat-bubble.assistant li { margin-bottom: 0.2em; }
+.chat-bubble.assistant strong { font-weight: 600; }
+.chat-bubble.assistant table { border-collapse: collapse; width: 100%; margin: 0.5em 0; font-size: 0.85em; }
+.chat-bubble.assistant th, .chat-bubble.assistant td { border: 1px solid var(--border); padding: 4px 8px; text-align: left; }
+.chat-bubble.assistant th { background: var(--bg-hover); font-weight: 600; }
+.chat-bubble.assistant h1, .chat-bubble.assistant h2, .chat-bubble.assistant h3 { margin: 0.5em 0 0.25em; font-size: 1em; font-weight: 600; }
+.chat-bubble.assistant code { background: var(--bg-hover); padding: 1px 4px; border-radius: 3px; font-size: 0.85em; }
+
 .chat-form { padding: 12px 14px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
 
 .chat-input {
