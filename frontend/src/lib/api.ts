@@ -3,22 +3,32 @@ import type { DailyReport, DiscoverResponse, Signal, SignalsResponse } from "./t
 const AGENT_URL = import.meta.env.VITE_API_BASE_URL
   ? `${import.meta.env.VITE_API_BASE_URL}/run`
   : "http://localhost:8080/run";
-// KEY kept for future Unkey integration
-const _KEY = (import.meta.env.VITE_API_KEY as string) || "dev";
-void _KEY;
 
-async function runAgent(prompt: string): Promise<string> {
-  const res = await fetch(AGENT_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt }),
-  });
-  if (!res.ok) {
-    const text = await res.text().catch(() => res.statusText);
-    throw new Error(`${res.status}: ${text}`);
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API_KEY = (import.meta.env.VITE_API_KEY as string) || "dev";
+
+async function runAgent(prompt: string, retries = 4): Promise<string> {
+  for (let attempt = 0; ; attempt++) {
+    const res = await fetch(AGENT_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt }),
+    });
+    if (res.status === 429 && attempt < retries) {
+      const retryAfter = Number(res.headers.get("Retry-After") ?? 0);
+      const delay = retryAfter > 0
+        ? retryAfter * 1000
+        : Math.min(1000 * 2 ** attempt + Math.random() * 500, 30_000);
+      await new Promise((r) => setTimeout(r, delay));
+      continue;
+    }
+    if (!res.ok) {
+      const text = await res.text().catch(() => res.statusText);
+      throw new Error(`${res.status}: ${text}`);
+    }
+    const data = await res.json() as { response?: string; output?: string };
+    return data.response ?? data.output ?? JSON.stringify(data);
   }
-  const data = await res.json() as { response?: string; output?: string };
-  return data.response ?? data.output ?? JSON.stringify(data);
 }
 
 function parseCompetitorList(text: string): string[] {
@@ -43,12 +53,15 @@ function parseCompetitorList(text: string): string[] {
 // Discovery
 // ---------------------------------------------------------------------------
 export async function discoverCompetitors(company: string): Promise<DiscoverResponse> {
-  const prompt =
-    `List the top 5 direct competitors for ${company}. ` +
-    `Return ONLY a JSON array of company name strings, no explanation. ` +
-    `Example format: ["Company A", "Company B", "Company C"]`;
-  const text = await runAgent(prompt);
-  return { company, competitors: parseCompetitorList(text), cached: false };
+  const res = await fetch(
+    `${API_BASE}/api/discover?company_name=${encodeURIComponent(company)}`,
+    { method: "POST", headers: { Authorization: `Bearer ${API_KEY}` } },
+  );
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new Error(`${res.status}: ${text}`);
+  }
+  return res.json() as Promise<DiscoverResponse>;
 }
 
 export const getCompetitors = (company: string): Promise<{ company: string; competitors: string[] }> =>
@@ -105,15 +118,16 @@ export const getCompetitorSignals = (name: string): Promise<SignalsResponse> =>
 // ---------------------------------------------------------------------------
 // Reports
 // ---------------------------------------------------------------------------
-export const getDailyReport = (company: string): Promise<DailyReport> =>
-  runAgent(
-    `Generate a daily competitive intelligence report for ${company}. ` +
-    `Return JSON matching the DailyReport schema with fields: generated_at, target_company, report_date, competitor_summaries, executive_summary, urgent_watch, total_signals_processed.`
-  ).then((text) => {
-    const m = text.match(/\{[\s\S]*\}/);
-    try { if (m) return JSON.parse(m[0]) as DailyReport; } catch { /* */ }
-    return { company, date: new Date().toDateString(), generated_at: new Date().toISOString(), competitors: [], total_signals_24h: 0 };
+export const getDailyReport = async (company: string): Promise<DailyReport> => {
+  const res = await fetch(`${API_BASE}/api/report?company=${encodeURIComponent(company)}`, {
+    headers: { Authorization: `Bearer ${API_KEY}` },
   });
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new Error(`${res.status}: ${text}`);
+  }
+  return res.json() as Promise<DailyReport>;
+};
 
 export const getCompetitorReport = (name: string): Promise<CompetitorReport> =>
   runAgent(
@@ -137,9 +151,17 @@ export interface CompetitorReport {
 // ---------------------------------------------------------------------------
 // Agent
 // ---------------------------------------------------------------------------
-export const triggerAgentRun = (company: string): Promise<{ status: string }> =>
-  runAgent(`Run a full competitive intelligence sweep for ${company}.`)
-    .then(() => ({ status: "ok" }));
+export const triggerAgentRun = async (company: string): Promise<{ status: string }> => {
+  const res = await fetch(
+    `${API_BASE}/api/agent/run?company_name=${encodeURIComponent(company)}`,
+    { method: "POST", headers: { Authorization: `Bearer ${API_KEY}` } },
+  );
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new Error(`${res.status}: ${text}`);
+  }
+  return res.json() as Promise<{ status: string }>;
+};
 
 // ---------------------------------------------------------------------------
 // Chat (streaming — falls back to non-streaming via /run)
