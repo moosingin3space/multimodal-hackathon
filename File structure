@@ -1,0 +1,30 @@
+scoutagent/
+├── app/
+│   ├── page.tsx                    (onboarding — enter company name)
+│   ├── dashboard/page.tsx          (live feed + daily report)
+│   ├── competitor/[name]/page.tsx  (deep dive on one competitor)
+│   └── api/
+│       ├── discover/route.ts       (phase 1 — find competitors, Unkey protected)
+│       ├── agent/route.ts          (trigger agent run, Unkey protected)
+│       └── chat/route.ts           (assistant-ui backend)
+├── backend/
+│   ├── main.py                     (FastAPI + Unkey middleware)
+│   ├── agent.py                    (Railtracks orchestration loop)
+│   ├── discovery.py                (auto-discover competitors from company name)
+│   ├── workers/
+│   │   ├── web_scraper.py          (company websites, press releases, blogs)
+│   │   ├── news_watcher.py         (Google News, TechCrunch, Bloomberg)
+│   │   ├── jobs_watcher.py         (LinkedIn, Indeed, Greenhouse job postings)
+│   │   ├── github_watcher.py       (repo activity, contributor growth, new repos)
+│   │   └── image_analyzer.py      (Gemini — analyze screenshots, thumbnails, charts)
+│   ├── signals/
+│   │   ├── employee_signals.py     (product, pricing, hiring, partnership signals)
+│   │   ├── investor_signals.py     (momentum, revenue proxies, red flags)
+│   │   └── urgency_scorer.py      (is this urgent enough to surface now vs daily?)
+│   ├── memory.py                   (Senso.ai — dedup, signal history, learning)
+│   ├── synthesizer.py              (DigitalOcean inference — build trajectory summary)
+│   ├── daily_report.py             (end of day comprehensive report generator)
+│   └── scheduler.py               (Railtracks autonomous scheduling — runs 24/7)
+├── lib/
+│   └── types.ts
+└── .env.example
