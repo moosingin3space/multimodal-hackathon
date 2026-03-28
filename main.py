@@ -2,6 +2,7 @@ import os
 from typing import TypedDict
 
 from dotenv import load_dotenv
+from fastapi.middleware.cors import CORSMiddleware
 from gradient_adk import entrypoint
 
 load_dotenv()
@@ -54,8 +55,25 @@ workflow = graph.compile()
 # Entrypoint — every Gradient ADK agent must expose exactly one @entrypoint
 # ---------------------------------------------------------------------------
 @entrypoint
-async def main(input: dict, context: dict):
+async def main(input: dict, context: dict):  # noqa: A002
     result = await workflow.ainvoke(
         {"messages": [HumanMessage(content=input["prompt"])]}
     )
     return {"response": result["messages"][-1].content}
+
+
+# ---------------------------------------------------------------------------
+# CORS — allow browser requests from the local frontend dev server.
+# @entrypoint injects `fastapi_app` into this module's globals at decoration
+# time (via sys._getframe), so it is available here at module load.
+# ---------------------------------------------------------------------------
+fastapi_app.add_middleware(  # noqa: F821  # injected by @entrypoint above
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:5174",
+        os.environ.get("FRONTEND_URL", ""),
+    ],
+    allow_methods=["POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization"],
+)
