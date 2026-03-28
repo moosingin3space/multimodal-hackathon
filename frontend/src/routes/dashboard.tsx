@@ -9,7 +9,7 @@ import {
 } from "../lib/api";
 import type { CompetitorSummary, DailyReport, Signal } from "../lib/types";
 
-const searchSchema = z.object({ company: z.string() });
+const searchSchema = z.object({ company: z.string(), competitors: z.array(z.string()).optional() });
 
 export const Route = createFileRoute("/dashboard")({
   validateSearch: searchSchema,
@@ -20,7 +20,7 @@ type Mode = "employee" | "investor";
 type PanelTab = "report" | "chat";
 
 function Dashboard() {
-  const { company } = Route.useSearch();
+  const { company, competitors: discoveredCompetitors } = Route.useSearch();
   const [mode, setMode] = useState<Mode>("employee");
   const [signals, setSignals] = useState<Signal[]>([]);
   const [report, setReport] = useState<DailyReport | null>(null);
@@ -31,12 +31,12 @@ function Dashboard() {
 
   const fetchSignals = useCallback(async () => {
     try {
-      const res = await getSignals(company, { mode, limit: 100 });
+      const res = await getSignals(company, { mode, limit: 100, competitors: discoveredCompetitors });
       setSignals(res.signals);
     } catch (e) {
       console.error("fetchSignals:", e);
     }
-  }, [company, mode]);
+  }, [company, mode, discoveredCompetitors]);
 
   const fetchReport = useCallback(async () => {
     try {
@@ -70,9 +70,12 @@ function Dashboard() {
 
   // Competitor list from report or derived from signals
   const competitors = report?.competitors ?? [];
-  const competitorNames: string[] = competitors.length > 0
+  const competitorNames: string[] = (competitors.length > 0
     ? competitors.map((c) => c.name)
-    : [...new Set(signals.map((s) => s.competitor))];
+    : signals.some((s) => s.competitor)
+    ? [...new Set(signals.map((s) => s.competitor))]
+    : discoveredCompetitors ?? []
+  ).filter(Boolean) as string[];
 
   const visibleSignals = activeCompetitor
     ? signals.filter((s) => s.competitor === activeCompetitor)
@@ -186,8 +189,8 @@ function Dashboard() {
             </div>
           )}
 
-          {visibleSignals.map((signal) => (
-            <SignalCard key={signal.id} signal={signal} />
+          {visibleSignals.map((signal, i) => (
+            <SignalCard key={signal.id || i} signal={signal} />
           ))}
         </main>
 

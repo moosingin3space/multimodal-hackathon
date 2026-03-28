@@ -23,7 +23,7 @@ function Onboarding() {
       setCompetitors(res.competitors);
       // Brief pause so user sees the competitor list before navigating
       await new Promise((r) => setTimeout(r, 1200));
-      navigate({ to: "/dashboard", search: { company: company.trim() } });
+      navigate({ to: "/dashboard", search: { company: company.trim(), competitors: res.competitors } });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Discovery failed");
       setLoading(false);

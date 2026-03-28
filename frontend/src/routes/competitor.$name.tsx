@@ -127,8 +127,8 @@ function CompetitorDeepDive() {
         )}
 
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          {filtered.map((signal) => (
-            <DeepDiveSignalCard key={signal.id} signal={signal} />
+          {filtered.map((signal, i) => (
+            <DeepDiveSignalCard key={signal.id || i} signal={signal} />
           ))}
         </div>
 

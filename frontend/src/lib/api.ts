@@ -59,17 +59,40 @@ export const getCompetitors = (company: string): Promise<{ company: string; comp
 // ---------------------------------------------------------------------------
 export const getSignals = (
   company: string,
-  options: { mode?: string; competitor?: string; limit?: number } = {}
+  options: { mode?: string; competitor?: string; limit?: number; competitors?: string[] } = {}
 ): Promise<SignalsResponse> => {
   const modeLabel = options.mode === "investor" ? "investor" : "employee";
   const competitorClause = options.competitor ? ` focused on ${options.competitor}` : "";
+  const knownCompetitors = options.competitors ?? [];
+  const competitorListClause = knownCompetitors.length
+    ? ` Known competitors: ${knownCompetitors.join(", ")}. Each signal's "competitor" field must exactly match one of these names.`
+    : "";
   return runAgent(
-    `Return recent competitive intelligence signals for ${company}${competitorClause} from a ${modeLabel} perspective. ` +
-    `Return JSON matching: {"signals": [{"id","type","company","title","description","source_url","confidence","timestamp","urgency","urgency_score"}]}`
+    `Return recent competitive intelligence signals for ${company}${competitorClause} from a ${modeLabel} perspective.${competitorListClause} ` +
+    `Return JSON matching: {"signals": [{"id": "unique-id", "competitor": "ExactCompetitorName", "type": "product_launch|pricing_change|hiring_surge|partnership|exec_move|other", "summary": "...", "urgency": "low|medium|high|critical", "surface_now": false, "detected_at": "ISO8601", "source_url": null, "mode": "${modeLabel}"}]}`
   ).then((text) => {
     const m = text.match(/\{[\s\S]*\}/);
-    try { if (m) return JSON.parse(m[0]) as SignalsResponse; } catch { /* */ }
-    return { company, count: 0, signals: [] as Signal[] };
+    let parsed: SignalsResponse = { company, count: 0, signals: [] };
+    try { if (m) parsed = JSON.parse(m[0]) as SignalsResponse; } catch { /* */ }
+
+    // Post-process: fill in missing/invalid fields so signals are always tagged correctly
+    const signals = (parsed.signals ?? []).map((s, i) => {
+      const competitor =
+        knownCompetitors.find((c) => c.toLowerCase() === s.competitor?.toLowerCase()) ??
+        s.competitor ??
+        knownCompetitors[i % knownCompetitors.length] ??
+        company;
+      return {
+        ...s,
+        id: s.id || `${competitor}-${i}-${Date.now()}`,
+        competitor,
+        detected_at: s.detected_at || new Date().toISOString(),
+        surface_now: s.surface_now ?? false,
+        mode: s.mode || modeLabel,
+      };
+    });
+
+    return { ...parsed, signals };
   });
 };
 
