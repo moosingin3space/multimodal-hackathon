@@ -110,17 +110,9 @@ function Dashboard() {
             </button>
           </div>
           <button
+            className="sweep-btn"
             onClick={handleRefresh}
             disabled={refreshing}
-            style={{
-              background: "var(--border)",
-              border: "none",
-              borderRadius: 6,
-              color: "var(--text-dim)",
-              padding: "6px 12px",
-              cursor: "pointer",
-              fontSize: 12,
-            }}
           >
             {refreshing ? "Sweeping…" : "↻ Sweep now"}
           </button>
